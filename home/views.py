@@ -2,8 +2,8 @@ from django.shortcuts import render
 # from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Student
-from .serializers import StudentSerializer
+from .models import Student,Project
+from .serializers import StudentSerializer, ProjectSerializer
 # # Create your views here.
 # @api_view(['GET','POST','DELETE'])
 # def home(request):
@@ -78,6 +78,54 @@ class StudentAPIView(APIView):
         except Student.DoesNotExist:
             return Response({'error':'Student not found'},status=404)
         serializer = StudentSerializer(student,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=200)
+        return Response(serializer.errors,status=400)   
+
+class ProjectAPIView(APIView):
+    def get(self,request):
+        project = Project.objects.all()
+        serializer = ProjectSerializer(project,many=True)
+        return Response(serializer.data)
+    def post(self,request):
+        serializer = ProjectSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=201)
+        return Response(serializer.errors,status=400)
+    def delete(self,request):
+        project_id = request.data.get('id')
+        if not project_id:
+            return Response({'error':'Project ID is required'},status=400)
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({'error':'Project not found'},status=404)
+        project.delete()
+        return Response(status=204)
+    def put(self,request):
+        project_id = request.data.get('id')
+        if not project_id:
+            return Response({'error':'Project ID is required'},status=400)
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({'error':'Project not found'},status=404)
+        serializer = ProjectSerializer(project,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=200)
+        return Response(serializer.errors,status=400)
+    def patch(self,request):
+        project_id = request.data.get('id')
+        if not project_id:
+            return Response({'error':'Project ID is required'},status=400)
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({'error':'Project not found'},status=404)
+        serializer = ProjectSerializer(project,data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=200)
