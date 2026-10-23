@@ -1,6 +1,10 @@
 from django.urls import path
-from .views import home
+from .views import StudentAPIView
+
+# urlpatterns = [
+#     path('students/',home),
+# ]
 
 urlpatterns = [
-    path('students/',home),
+    path('students/', StudentAPIView.as_view(), name='students'),
 ]
