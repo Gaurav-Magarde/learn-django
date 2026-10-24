@@ -11,7 +11,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    projects = ProjectSerializer(many=True,read_only=True)
+    projects = ProjectSerializer(many=True,read_only=True,source='project_set')
     class Meta:
         model = Student
         fields = ['id','name','roll_number','city','projects']
