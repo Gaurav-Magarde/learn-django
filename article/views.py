@@ -10,7 +10,6 @@ from rest_framework.pagination import PageNumberPagination
 
 class ArticleListAPIView(generics.ListAPIView):
 
-    pagination_class = PageNumberPagination
     queryset = Article.objects.filter(is_published=True).order_by('-created_at')
     serializer_class = ArticleSerializer
     
