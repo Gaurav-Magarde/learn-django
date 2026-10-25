@@ -6,8 +6,10 @@ from .models import Student,Project
 from .serializers import StudentSerializer, ProjectSerializer,UserSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-from rest_framework.authentication import TokenAuthentication
+# from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 # # Create your views here.
 # @api_view(['GET','POST','DELETE'])
 # def home(request):
@@ -136,13 +138,13 @@ from rest_framework.permissions import IsAuthenticated
 #         return Response(serializer.errors,status=400)   
 
 class StudentGenericAPIView(generics.ListCreateAPIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 class StudentUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
@@ -157,8 +159,9 @@ class UserRegisterAPIView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         user = serializer.instance
-        token ,_ = Token.objects.get_or_create(user=user)
-        return Response({'data':serializer.data, 'token':str(token)} , status=201, headers=headers)
+        # token ,_ = Token.objects.get_or_create(user=user)
+        token = RefreshToken.for_user(user)
+        return Response({'data':serializer.data, 'token':{'refresh':str(token),'access':str(token.access_token)}} , status=201, headers=headers)
 
     def perform_create(self, serializer):
         serializer.save()
