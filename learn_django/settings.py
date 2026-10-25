@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'home',
+    'article',
     'rest_framework.authtoken'
 ]
 
@@ -119,7 +120,8 @@ SIMPLE_JWT = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':(
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'PAGE_SIZE' : 10
 }
 
 # Internationalization
