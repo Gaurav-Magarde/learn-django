@@ -1,3 +1,4 @@
+from article.pagination import CustomPagination
 from django.shortcuts import render
 from .serializers import ArticleSerializer
 from .models import Article
@@ -9,7 +10,7 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class ArticleListAPIView(generics.ListAPIView):
-
+    pagination_class = CustomPagination
     queryset = Article.objects.filter(is_published=True).order_by('-created_at')
     serializer_class = ArticleSerializer
     
