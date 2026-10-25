@@ -3,7 +3,11 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
 from .models import Student,Project
-from .serializers import StudentSerializer, ProjectSerializer
+from .serializers import StudentSerializer, ProjectSerializer,UserSerializer
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 # # Create your views here.
 # @api_view(['GET','POST','DELETE'])
 # def home(request):
@@ -132,11 +136,29 @@ from .serializers import StudentSerializer, ProjectSerializer
 #         return Response(serializer.errors,status=400)   
 
 class StudentGenericAPIView(generics.ListCreateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
 class StudentUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'id'
     
+
+class UserRegisterAPIView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        user = serializer.instance
+        token ,_ = Token.objects.get_or_create(user=user)
+        return Response({'data':serializer.data, 'token':str(token)} , status=201, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save()
